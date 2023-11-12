@@ -113,4 +113,6 @@ addTicketBtn.addEventListener('click', function (e) {
     addTicketNum.value = '';
     addTicketPrice.value = '';
     addTicketRate.value = '';
+
+    regionSearch.value = '地區搜尋';
 });
