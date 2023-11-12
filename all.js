@@ -34,6 +34,7 @@ let data = [
 const ticketCardList = document.querySelector('.ticketCard-area');
 const regionSearch = document.querySelector('.regionSearch');
 const cantFindArea = document.querySelector('.cantFind-area');
+const searchResultText = document.querySelector('#searchResult-text');
 
 
 let str = '';
@@ -53,29 +54,32 @@ init();
 
 // 篩選功能
 regionSearch.addEventListener('change', function (e) {
-    let haveData = false;
+    let dataNum = 0;
     data.forEach(function (item, index) {
         if (e.target.value === item.area) {
-            haveData = true;
+            dataNum++;
             cantFindArea.style.display = 'none';
             let content = `<li class="ticketCard"><div class="ticketCard-img"><a href="#"><img src="${item.imgUrl}" alt=""></a><div class="ticketCard-region">${item.area}</div><div class="ticketCard-rank">${item.rate}</div></div><div class="ticketCard-content"><div><h3><a href="#" class="ticketCard-name">${item.name}</a></h3><p class="ticketCard-description">${item.description}</p></div>  <div class="ticketCard-info"><p class="ticketCard-num">      <span><i class="fas fa-exclamation-circle"></i></span>剩下最後 <span id="ticketCard-num"> ${item.group} </span>組</p><p class="ticketCard-price">TWD<span id="ticketCard-price">$${item.price}</span></p></div></div></li>`;
             str += content;
             ticketCardList.innerHTML = str;
         } else if (e.target.value === '全部地區') {
-            haveData = true;
+            dataNum++;
 
             cantFindArea.style.display = 'none';
             init();
 
         }
     });
-    // 若無符合的資料，開啟cantFind-area
-    if (!haveData) {
 
+    searchResultText.textContent = `本次搜尋共 ${dataNum} 筆資料`;
+
+    str = '';
+    // 若無符合的資料，開啟cantFind-area
+    if (dataNum === 0) {
         ticketCardList.innerHTML = str;
         cantFindArea.style.display = 'block';
+
     }
-    str = '';
 
 });
 
@@ -115,4 +119,5 @@ addTicketBtn.addEventListener('click', function (e) {
     addTicketRate.value = '';
 
     regionSearch.value = '地區搜尋';
+    searchResultText.textContent = `本次搜尋共 ${data.length} 筆資料`;
 });
