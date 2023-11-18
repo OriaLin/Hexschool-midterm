@@ -30,60 +30,13 @@ let data = [
         "rate": 7
     }
 ];
+// 助教的程式碼分類建議：可以將建立的變數放最上方，函式放中間，最後放 init()
 
+// 變數區
 const ticketCardList = document.querySelector('.ticketCard-area');
 const regionSearch = document.querySelector('.regionSearch');
 const cantFindArea = document.querySelector('.cantFind-area');
 const searchResultText = document.querySelector('#searchResult-text');
-
-
-let str = '';
-
-// 初始化 顯示所有資料
-function init() {
-    data.forEach(function (item, index) {
-        let content = `<li class="ticketCard"><div class="ticketCard-img"><a href="#"><img src="${item.imgUrl}" alt=""></a><div class="ticketCard-region">${item.area}</div><div class="ticketCard-rank">${item.rate}</div></div><div class="ticketCard-content"><div><h3><a href="#" class="ticketCard-name">${item.name}</a></h3><p class="ticketCard-description">${item.description}</p></div>  <div class="ticketCard-info"><p class="ticketCard-num">      <span><i class="fas fa-exclamation-circle"></i></span>剩下最後 <span id="ticketCard-num"> ${item.group} </span>組</p><p class="ticketCard-price">TWD<span id="ticketCard-price">$${item.price}</span></p></div></div></li>`;
-        str += content;
-        ticketCardList.innerHTML = str;
-    });
-    str = '';
-    cantFindArea.style.display = 'none';
-}
-
-init();
-
-// 篩選功能
-regionSearch.addEventListener('change', function (e) {
-    let dataNum = 0;
-    data.forEach(function (item, index) {
-        if (e.target.value === item.area) {
-            dataNum++;
-            cantFindArea.style.display = 'none';
-            let content = `<li class="ticketCard"><div class="ticketCard-img"><a href="#"><img src="${item.imgUrl}" alt=""></a><div class="ticketCard-region">${item.area}</div><div class="ticketCard-rank">${item.rate}</div></div><div class="ticketCard-content"><div><h3><a href="#" class="ticketCard-name">${item.name}</a></h3><p class="ticketCard-description">${item.description}</p></div>  <div class="ticketCard-info"><p class="ticketCard-num">      <span><i class="fas fa-exclamation-circle"></i></span>剩下最後 <span id="ticketCard-num"> ${item.group} </span>組</p><p class="ticketCard-price">TWD<span id="ticketCard-price">$${item.price}</span></p></div></div></li>`;
-            str += content;
-            ticketCardList.innerHTML = str;
-        } else if (e.target.value === '全部地區') {
-            dataNum++;
-
-            cantFindArea.style.display = 'none';
-            init();
-
-        }
-    });
-
-    searchResultText.textContent = `本次搜尋共 ${dataNum} 筆資料`;
-
-    str = '';
-    // 若無符合的資料，開啟cantFind-area
-    if (dataNum === 0) {
-        ticketCardList.innerHTML = str;
-        cantFindArea.style.display = 'block';
-
-    }
-
-});
-
-// 新增套票功能
 
 const addTicketName = document.querySelector('#ticketName');
 const addTicketImgUrl = document.querySelector('#ticketImgUrl');
@@ -94,6 +47,60 @@ const addTicketRate = document.querySelector('#ticketRate');
 const addTicketDescription = document.querySelector('#ticketDescription');
 const addTicketBtn = document.querySelector('.addTicket-btn');
 
+const addTicketForm = document.querySelector('.addTicket-form')
+
+// let str = ''; 改為宣告在render中
+
+// 函式宣告區
+
+// 批改助教建議：init() 建議改為 render() ，提高函式名稱的準確性
+// init()用來管理所有區塊的初始化狀態
+
+function init() {
+    render(data); //初始化，顯示所有資料
+}
+
+// 參考週三助教講解：在render()新增參數data(格式為陣列包物件)
+function render(data) {
+    let str = '';
+    data.forEach(function (item) {
+        let content = `<li class="ticketCard"><div class="ticketCard-img"><a href="#"><img src="${item.imgUrl}" alt=""></a><div class="ticketCard-region">${item.area}</div><div class="ticketCard-rank">${item.rate}</div></div><div class="ticketCard-content"><div><h3><a href="#" class="ticketCard-name">${item.name}</a></h3><p class="ticketCard-description">${item.description}</p></div>  <div class="ticketCard-info"><p class="ticketCard-num">      <span><i class="fas fa-exclamation-circle"></i></span>剩下最後 <span id="ticketCard-num"> ${item.group} </span>組</p><p class="ticketCard-price">TWD<span id="ticketCard-price">$${item.price}</span></p></div></div></li>`;
+        str += content;
+        ticketCardList.innerHTML = str;
+    });
+    // str = ''; 將str改宣告在函式內，每次執行都會自動在64行清空
+    searchResultText.textContent = `本次搜尋共 ${data.length} 筆資料`;
+    cantFindArea.style.display = 'none';
+}
+
+render(data);
+
+// 篩選功能
+regionSearch.addEventListener('change', function (e) {
+    let filterData = [];
+    data.forEach(function (item) {
+        if (e.target.value === item.area) {
+            filterData.push(item);
+            cantFindArea.style.display = 'none';
+
+        } else if (e.target.value === '全部地區') {
+            filterData.push(item);
+            cantFindArea.style.display = 'none';
+        }
+        
+        render(filterData);
+    });
+
+    // 若無符合的資料，開啟cantFind-area
+    if (filterData.length === 0) {
+        ticketCardList.innerHTML = '';
+        cantFindArea.style.display = 'block';
+        searchResultText.textContent = `本次搜尋共 ${filterData.length} 筆資料`;
+    }
+
+});
+
+// 新增套票功能
 addTicketBtn.addEventListener('click', function (e) {
     let obj = {};
     obj.id = data.length;
@@ -107,17 +114,18 @@ addTicketBtn.addEventListener('click', function (e) {
     console.log(obj);
 
     data.push(obj);
-    init(); //顯示所有資料
+    render(data); //顯示所有資料
 
     // 清空輸入欄
-    addTicketName.value = '';
-    addTicketImgUrl.value = '';
-    addTicketRegion.value = '';
-    addTicketDescription.value = '';
-    addTicketNum.value = '';
-    addTicketPrice.value = '';
-    addTicketRate.value = '';
+    // addTicketName.value = '';
+    // addTicketImgUrl.value = '';
+    // addTicketRegion.value = '';
+    // addTicketDescription.value = '';
+    // addTicketNum.value = '';
+    // addTicketPrice.value = '';
+    // addTicketRate.value = '';
 
+    // 助教建議：改用.reset方法
+    addTicketForm.reset()
     regionSearch.value = '地區搜尋';
-    searchResultText.textContent = `本次搜尋共 ${data.length} 筆資料`;
 });
